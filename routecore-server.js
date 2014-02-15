@@ -1,4 +1,5 @@
-var connectRoute = Npm.require('connect-route'),
+var connect = Npm.require('connect'),
+    connectRoute = Npm.require('connect-route'),
     http = Npm.require('http'),
     Fiber = Npm.require('fibers'),
     connectHandlers = WebApp.connectHandlers,
@@ -79,7 +80,9 @@ function map (fn) {
 // Attach our middleware to the Meteor pipeline
 Meteor.startup(function() {
   setTimeout(function () {
-    connectHandlers.use(middleware);
+    connectHandlers
+      .use(connect.cookieParser())
+      .use(middleware);
   })
 });
 

@@ -28,7 +28,7 @@ function route(path, cb) {
 }
 
 function map (fn) {
-  fn.apply(this):
+  fn.apply(this);
 }
 
 // Attach event listeners to the dom

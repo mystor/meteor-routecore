@@ -46,6 +46,22 @@ Context = (function() {
       this._sessionData[k] = v;
   }
 
+  // The FastRender context uses a userId field on the context to store
+  // the id of the current user.  We can use this to emulate the Meteor.user()
+  // reactive data source.
+  // We do not emulate the Meteor.userId reactive data source, as the userId
+  // field is already in use on this object.
+  Context.prototype.user = function() {
+    return Meteor.users.findOne({_id: this.userId}, {
+      fields: {
+        _id: 1,
+        username: 1,
+        emails: 1,
+        profile: 1
+      }
+    });
+  }
+
   return Context;
 })();
 

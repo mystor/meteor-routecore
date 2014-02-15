@@ -24,6 +24,10 @@ Context = (function() {
     return Session.setDefault.apply(Session, arguments);
   }
 
+  Context.prototype.user = function() {
+    return Meteor.user.apply(Meteor, arguments);
+  }
+
   return Context;
 })();
 
