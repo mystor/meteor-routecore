@@ -64,17 +64,14 @@ http.OutgoingMessage.prototype.write = function(chunk, encoding) {
   originalWrite.call(this, chunk, encoding);
 };
 
+function route(path, cb) {
+  router.get(path, _wrap.call(this, cb));
+
+  return this.reverser(path);
+}
+
 function map (fn) {
-  var self = this;
-
-  fn.apply({
-    route: function(path, cb) {
-      router.get(path, _wrap.call(self, cb));
-
-      // Return a function for generating urls
-      return RouteCore.reverser(path);
-    }
-  });
+  fn.apply(this);
 }
 
 // TODO: Add a lower level map for server-only resources
@@ -87,4 +84,5 @@ Meteor.startup(function() {
 });
 
 RouteCore.map = map;
+RouteCore.route = route;
 

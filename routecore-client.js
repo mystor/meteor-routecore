@@ -21,17 +21,14 @@ function _wrap (cb) {
   }
 }
 
+function route(path, cb) {
+  page(path, _wrap.call(this, cb));
+
+  return this.reverser(path);
+}
+
 function map (fn) {
-  var self = this;
-
-  fn.apply({
-    route: function(path, cb) {
-      page(path, _wrap.call(self, cb));
-
-      // Return a function for generating urls
-      return RouteCore.reverser(path);
-    }
-  });
+  fn.apply(this):
 }
 
 // Attach event listeners to the dom
@@ -41,4 +38,5 @@ Meteor.startup(function() {
 
 // Export the map function
 RouteCore.map = map;
+RouteCore.route = route;
 
