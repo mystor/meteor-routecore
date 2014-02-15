@@ -1,5 +1,5 @@
 Package.describe({
-  summary: 'Server & Client-side routing with React'
+  summary: 'client and server side rendering/routing powered by React'
 });
 
 Npm.depends({
@@ -20,6 +20,7 @@ Package._transitional_registerBuildPlugin({
 
 Package.on_use(function (api) {
   api.use(['deps', 'page-js-ie-support'], 'client');
+  api.use('HTML5-History-API', 'client', {weak: true});
   api.use('webapp', 'server');
   api.use('fast-render', ['client', 'server']);
 
