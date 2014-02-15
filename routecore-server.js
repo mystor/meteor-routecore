@@ -33,7 +33,7 @@ function _wrap (cb) {
           next();
         });
       } catch (err) {
-        console.error('Error while rendering path:' + req.path +' ; error: ' + err.stack);
+        console.error('Error while rendering path: ' + req.url +' ; error: ' + err.stack);
         next();
       }
     }).run();

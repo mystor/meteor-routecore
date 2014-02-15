@@ -1,7 +1,7 @@
 // Create the routecore object
 RouteCore = {};
 
-// Common method for reversing a route.  Will be returned when 
+// Common method for reversing a route.  Will be returned when
 // this.route() is called in a RouteCore.map() function.
 var segment = /\/:[^:\/\?]+\??/g;
 
@@ -13,10 +13,15 @@ RouteCore.reverser = function(path) {
   var keys = path.match(segment) || [];
   keys = keys.map(stripSegment);
 
-  return function(obj) {
-    if (!obj || (typeof obj !== 'object')) {
+  return function() {
+    var obj;
+
+    if (typeof arguments[0] === 'object'
+        && arguments.length === 1) {
+      obj = arguments[0];
+    } else {
       obj = {};
-      for (var i=0; i<arguments.length; i++) {
+      for (var i=0; i < arguments.length; i++) {
         if (i > keys.length) {
           console.warn('warn: reverse recieved more parameters than variable path segments');
           break;
@@ -26,9 +31,9 @@ RouteCore.reverser = function(path) {
       }
     }
 
-    return path.replace(segment, function(m, s) {
-      s = stripSegment(s);
-      return obj[s] ? '/' + obj[s] : '';
+    return path.replace(segment, function(seg) {
+      seg = stripSegment(seg);
+      return obj[seg] ? '/' + obj[seg] : '';
     });
   };
 };

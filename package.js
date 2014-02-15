@@ -23,6 +23,7 @@ Package.on_use(function (api) {
   api.use('HTML5-History-API', 'client', {weak: true});
   api.use('webapp', 'server');
   api.use('fast-render', ['client', 'server']);
+  api.imply('fast-render', ['client', 'server']);
 
   api.add_files('react.js', ['client', 'server']);
 
