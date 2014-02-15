@@ -1,3 +1,5 @@
+var context = new Context();
+
 function _wrap (cb) {
   var self = this;
 
@@ -7,9 +9,12 @@ function _wrap (cb) {
     if (self._computation)
       self._computation.stop();
 
+    // We want to rerun the renderComponent function every time
+    // that any dependencies update. Thanks to React's lightweight
+    // virtual DOM, we can get away with this.
     self._computation = Deps.autorun(function() {
       React.renderComponent(
-        cb(ctx),
+        cb.call(context, ctx),
         document.body
       );
     });
@@ -22,7 +27,9 @@ function map (fn) {
   fn.apply({
     route: function(path, cb) {
       page(path, _wrap.call(self, cb));
-      // TODO: Return a urlFor function
+
+      // Return a function for generating urls
+      return RouteCore.reverser(path);
     }
   });
 }
@@ -32,5 +39,6 @@ Meteor.startup(function() {
   page();
 });
 
-RouteCore = {map: map};
+// Export the map function
+RouteCore.map = map;
 

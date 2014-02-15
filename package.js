@@ -1,5 +1,10 @@
 Package.describe({
-  summary: 'HTML5 Routing Core'
+  summary: 'Server & Client-side routing with React'
+});
+
+Npm.depends({
+  'connect': '2.7.10',
+  'connect-route': '0.1.4'
 });
 
 Package._transitional_registerBuildPlugin({
@@ -13,29 +18,20 @@ Package._transitional_registerBuildPlugin({
   }
 });
 
-Package.on_use(function (api, where) {
-  Npm.depends({
-    'connect': '2.7.10',
-    'connect-route': '0.1.4'
-  });
-
-  api.use('deps', 'client');
-  api.use('jquery', 'client');
-  api.use('page-js-ie-support', 'client');
+Package.on_use(function (api) {
+  api.use(['deps', 'page-js-ie-support'], 'client');
   api.use('webapp', 'server');
+  api.use('fast-render', ['client', 'server']);
 
-  // Load react!
   api.add_files('react.js', ['client', 'server']);
 
-  // Client side routing wrapper
+  api.add_files('routecore-common.js', ['client', 'server']);
+  api.add_files('context-client.js', 'client');
+  api.add_files('context-server.js', 'server');
   api.add_files('routecore-client.js', 'client');
-
-  // Server side routing wrapper
-  api.add_files('boilerplateHtml.js', 'server');
   api.add_files('routecore-server.js', 'server');
-  api.add_files('server-stubs.js', 'server');
 
   api.export('RouteCore', ['client', 'server']);
-  // api.export('React'); -- unnecessary (react sets global obj)
+  // api.export('React'); -- unnecessary (react mutates global obj)
 });
 
