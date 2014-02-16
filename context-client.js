@@ -2,7 +2,9 @@ Context = (function() {
   // On the client, the context is just a set of aliases for other
   // Meteor functions.  It exists only so that we can use the exact
   // same code on the client and the server
-  function Context() {}
+  function Context() {
+    this.finished = false;
+  }
 
   Context.prototype.subscribe = function() {
     return Meteor.subscribe.apply(Meteor, arguments);
@@ -26,6 +28,11 @@ Context = (function() {
 
   Context.prototype.user = function() {
     return Meteor.user.apply(Meteor, arguments);
+  }
+
+  Context.prototype.redirect = function(url) {
+    this.finished = true;
+    page.show(url);
   }
 
   return Context;

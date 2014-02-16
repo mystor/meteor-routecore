@@ -5,9 +5,11 @@ Context = (function() {
   var __super__ = FastRender._Context.prototype;
   Context.prototype = Object.create(__super__);
 
-  function Context() {
+  function Context(loginToken, req, res) {
     this._sessionData = {};
-    return FastRender._Context.apply(this, arguments);
+    this.request = req;
+    this.response = res;
+    return FastRender._Context.call(this, loginToken);
   }
 
   // The subscribe function on the client returns an object with a
@@ -60,6 +62,22 @@ Context = (function() {
         profile: 1
       }
     });
+  }
+
+  // Redirect to a new page!  Because we are on a server page, we will serve
+  // a 307 redirect message.
+  //
+  // Usage:
+  // RouteCore.route('/place', function() {
+  //   return this.redirect('/');
+  // });
+  Context.prototype.redirect = function(url) {
+    var body = '<p>Temporarially Moved. Redirecting to <a href="' + url + '">' + url + '</a></p>';
+    this.response.setHeader('Content-Type', 'text/html');
+    this.response.statusCode = 307;
+    this.response.setHeader('Location', url);
+    this.response.end(body);
+    console.log('redirected');
   }
 
   return Context;

@@ -14,11 +14,23 @@ function _wrap (cb) {
     var loginToken = req.cookies['meteor_login_token'];
 
     Fiber(function() {
-      var context = new Context(loginToken);
+      var context = new Context(loginToken, req, res);
 
       try {
         // Run the request
         var component = cb.call(context, req);
+
+        // The response was accessed in the callback, and used to
+        // send data directly to the client.  We are done.
+        if (res.finished)
+          return;
+
+        // No component was returned, we don't bother rendering and
+        // instead let the rest of the system run its course
+        if (!component) {
+          next();
+          return;
+        }
 
         // Render the html
         React.renderComponentToString(component, function(html) {
@@ -74,8 +86,6 @@ function route(path, cb) {
 function map (fn) {
   fn.apply(this);
 }
-
-// TODO: Add a lower level map for server-only resources
 
 // Attach our middleware to the Meteor pipeline
 Meteor.startup(function() {
