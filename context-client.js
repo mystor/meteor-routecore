@@ -10,19 +10,19 @@ Context = (function() {
     return Meteor.subscribe.apply(Meteor, arguments);
   }
 
-  Context.prototype.sset = function() {
+  Context.prototype.set = function() {
     return Session.set.apply(Session, arguments);
   }
 
-  Context.prototype.sequals = function() {
+  Context.prototype.equals = function() {
     return Session.equals.apply(Session, arguments);
   }
 
-  Context.prototype.sget = function() {
+  Context.prototype.get = function() {
     return Session.get.apply(Session, arguments);
   }
 
-  Context.prototype.ssetDefault = function() {
+  Context.prototype.setDefault = function() {
     return Session.setDefault.apply(Session, arguments);
   }
 

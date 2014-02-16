@@ -178,8 +178,8 @@ RouteCore.map(function() {
 ```javascript
 RouteCore.map(function() {
   this.route('/', function(ctx) {
-    this.ssetDefault('name', 'Jim');
-    return <h1>Hello {this.sget('name')}</h1>
+    this.setDefault('name', 'Jim');
+    return <h1>Hello {this.get('name')}</h1>
   });
 });
 ```

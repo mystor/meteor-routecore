@@ -31,19 +31,19 @@ Context = (function() {
   // We don't send this data to the server (like fast-render), because
   // we assume that the route function is idempotent.  The session should
   // be identically recreated on the client.
-  Context.prototype.sset = function(k, v) {
+  Context.prototype.set = function(k, v) {
     this._sessionData[k] = v;
   }
 
-  Context.prototype.sequals = function(k, v) {
+  Context.prototype.equals = function(k, v) {
     return this._sessionData[k] === v;
   }
 
-  Context.prototype.sget = function(k) {
+  Context.prototype.get = function(k) {
     return this._sessionData[k];
   }
 
-  Context.prototype.ssetDefault = function(k, v) {
+  Context.prototype.setDefault = function(k, v) {
     if (!this._sessionData[k])
       this._sessionData[k] = v;
   }
