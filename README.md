@@ -130,7 +130,7 @@ RouteCore.map(function() {
 var Routes = {};
 RouteCore.map(function() {
   Routes.index = this.route('/', function(ctx) {
-    return <a href={Routes.other('pageName')}>GO</a>
+    return <a href={Routes.page('pageName')}>GO</a>
   });
 
   Routes.page = this.route('/pages/:page', function(ctx) {
