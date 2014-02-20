@@ -3,7 +3,7 @@
     "description": "client and server side rendering/routing powered by React",
     "homepage": "https://github.com/mystor/meteor-routecore",
     "author": "Michael Layzell (https://github.com/mystor)",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "git": "https://github.com/mystor/meteor-routecore.git",
     "packages": {
         "page-js-ie-support": {},
