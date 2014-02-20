@@ -38,7 +38,7 @@ function _wrap (cb) {
 
           // Save the query data
           // TODO: Make this merge with queryData potentially already in req
-          res.queryData = context.getData();
+          res.queryData = context._frContext.getData();
           if (res.queryData)
             res.queryData.serverRoutePath = req.url;
 

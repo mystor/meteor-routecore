@@ -27,7 +27,15 @@ Context = (function() {
   }
 
   Context.prototype.user = function() {
-    return Meteor.user.apply(Meteor, arguments);
+    return Meteor.user();
+  }
+
+  Context.prototype.userId = function() {
+    return Meteor.userId();
+  }
+
+  Context.prototype.loggingIn = function() {
+    return Meteor.loggingIn();
   }
 
   Context.prototype.redirect = function(url) {

@@ -1,15 +1,10 @@
 Context = (function() {
-  // On the server, we want to record subscribe events using
-  // FastRender.  Thus, we extend the context from the
-  // FastRender Context object.
-  var __super__ = FastRender._Context.prototype;
-  Context.prototype = Object.create(__super__);
 
   function Context(loginToken, req, res) {
     this._sessionData = {};
     this.request = req;
     this.response = res;
-    return FastRender._Context.call(this, loginToken);
+    this._frContext = new FastRender._Context(loginToken);
   }
 
   // The subscribe function on the client returns an object with a
@@ -17,9 +12,8 @@ Context = (function() {
   // the client and the server, we need to make the subscribe function
   // return a object with these methods.
   Context.prototype.subscribe = function() {
-    __super__.subscribe.apply(this, arguments);
+    this._frContext.subscribe.apply(this._frContext, arguments);
 
-    // The subsribe
     return {
       ready: function() {return true;},
       stop: function() {}
@@ -51,10 +45,8 @@ Context = (function() {
   // The FastRender context uses a userId field on the context to store
   // the id of the current user.  We can use this to emulate the Meteor.user()
   // reactive data source.
-  // We do not emulate the Meteor.userId reactive data source, as the userId
-  // field is already in use on this object.
   Context.prototype.user = function() {
-    return Meteor.users.findOne({_id: this.userId}, {
+    return Meteor.users.findOne({_id: this.userId()}, {
       fields: {
         _id: 1,
         username: 1,
@@ -62,6 +54,14 @@ Context = (function() {
         profile: 1
       }
     });
+  }
+
+  Context.prototype.userId = function() {
+    return this._frContext.userId;
+  }
+
+  Context.prototype.loggingIn = function() {
+    return false;
   }
 
   // Redirect to a new page!  Because we are on a server page, we will serve
@@ -77,7 +77,6 @@ Context = (function() {
     this.response.statusCode = 307;
     this.response.setHeader('Location', url);
     this.response.end(body);
-    console.log('redirected');
   }
 
   return Context;
