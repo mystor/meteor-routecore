@@ -15,15 +15,11 @@ function _wrap (cb) {
 
     Fiber(function() {
       var context = new Context(loginToken, req, res);
+      Fiber.current._routeCoreContext = context;
 
       try {
         // Run the request
         var component = cb.call(context, req);
-
-        // The response was accessed in the callback, and used to
-        // send data directly to the client.  We are done.
-        if (res.finished)
-          return;
 
         // No component was returned, we don't bother rendering and
         // instead let the rest of the system run its course
@@ -41,6 +37,11 @@ function _wrap (cb) {
           res.queryData = context._frContext.getData();
           if (res.queryData)
             res.queryData.serverRoutePath = req.url;
+
+          // The response was accessed during rendering, and used to
+          // send data directly to the client.  We are done.
+          if (res.finished)
+            return;
 
           // Move on to the next middleware
           next();

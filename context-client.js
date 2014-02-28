@@ -47,4 +47,5 @@ Context = (function() {
 })();
 
 RouteCore._Context = Context;
+RouteCore.bindGlobals = function() {/* NO-OP on client */};
 

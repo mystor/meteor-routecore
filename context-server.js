@@ -1,3 +1,5 @@
+var Fiber = Npm.require('fibers');
+
 Context = (function() {
 
   function Context(loginToken, req, res) {
@@ -82,5 +84,49 @@ Context = (function() {
   return Context;
 })();
 
+function callOnContext(fn) {
+  // Returns a function which is equivalent to calling the function
+  // fn on the current RouteCore context.  
+  //
+  // Throws an error if not in a RouteCore fiber
+
+  return function() {
+    try {
+      var context = Fiber.current._routeCoreContext;
+      return context[fn].apply(context, arguments);
+    } catch (err) {
+      throw "Can only call " + fn + " when in a RouteCore Fiber.";
+    }
+  }
+}
+
+function bindGlobals() {
+  // Binds a set of global values on the server
+  //
+  // Binds the following:
+  // Meteor.subscribe()
+  // Meteor.user()
+  // Meteor.userId()
+  // Meteor.loggingIn()
+  // Session.get()
+  // Session.set()
+  // Session.equals()
+  // Session.setDefault()
+
+  global.Meteor = global.Meteor || {};
+  global.Session = global.Session || {};
+
+  global.Meteor.subscribe = callOnContext('subscribe');
+  global.Meteor.user = callOnContext('user');
+  global.Meteor.userId = callOnContext('userId');
+  global.Meteor.loggingIn = callOnContext('loggingIn');
+
+  global.Session.get = callOnContext('get');
+  global.Session.set = callOnContext('set');
+  global.Session.equals = callOnContext('equals');
+  global.Session.setDefault = callOnContext('setDefault');
+}
+
 RouteCore._Context = Context;
+RouteCore.bindGlobals = bindGlobals;
 
