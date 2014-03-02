@@ -1,6 +1,3 @@
-// Create the routecore object
-RouteCore = {};
-
 // Common method for reversing a route.  Will be returned when
 // this.route() is called in a RouteCore.map() function.
 var segment = /\/:[^:\/\?]+\??/g;
@@ -9,7 +6,7 @@ function stripSegment(s) {
   return s.replace(/[:\/\?]/g, '');
 }
 
-RouteCore.reverser = function(path) {
+function reverser(path) {
   var keys = path.match(segment) || [];
   keys = keys.map(stripSegment);
 
@@ -36,5 +33,45 @@ RouteCore.reverser = function(path) {
       return obj[seg] ? '/' + obj[seg] : '';
     });
   };
+}
+
+// Common method for adding a route
+// Delegates to the platform-specific _rawRoute once
+// it has transformed the handler into a function.
+//
+// Accepts:
+//  - React component spec
+//  - React component
+//  - Callback function
+function route(path, handler) {
+  if (typeof handler === 'object') {
+    // We have received an object, we will use it
+    // as a spec to create a react component
+
+    return this.route(path, React.createClass(handler));
+  } else if (typeof handler === 'function') {
+    if (handler.originalSpec) {
+      // We have received react component!
+      // We attach a generic function callback which will
+      // render the react component which was passed in
+
+      return this.route(path, function(ctx) {
+        return handler(ctx.params);
+      });
+    } else {
+      // We have received a raw callback!
+      // Delegate to the platform-specific code
+
+      this._rawRoute(path, handler);
+      return this.reverser(path);
+    }
+  } else {
+    throw new TypeError('Invalid handler type for route: ' + path);
+  }
+}
+
+RouteCore = {
+  reverser: reverser,
+  route: route
 };
 

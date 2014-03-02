@@ -34,10 +34,8 @@ function _wrap (cb) {
   }
 }
 
-function route(path, cb) {
+function rawRoute(path, cb) {
   page(path, _wrap.call(this, cb));
-
-  return this.reverser(path);
 }
 
 function map (fn) {
@@ -51,5 +49,5 @@ Meteor.startup(function() {
 
 // Export the map function
 RouteCore.map = map;
-RouteCore.route = route;
+RouteCore._rawRoute = rawRoute;
 

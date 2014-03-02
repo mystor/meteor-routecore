@@ -78,10 +78,8 @@ http.OutgoingMessage.prototype.write = function(chunk, encoding) {
   originalWrite.call(this, chunk, encoding);
 };
 
-function route(path, cb) {
+function rawRoute(path, cb) {
   router.get(path, _wrap.call(this, cb));
-
-  return this.reverser(path);
 }
 
 function map (fn) {
@@ -98,5 +96,5 @@ Meteor.startup(function() {
 });
 
 RouteCore.map = map;
-RouteCore.route = route;
+RouteCore._rawRoute = rawRoute;
 
