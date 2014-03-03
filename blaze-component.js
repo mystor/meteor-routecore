@@ -68,7 +68,7 @@ function BlazeComponent(component) {
     componentWillUnmount: function() {
       var self = this;
       Deps.nonreactive(function() {
-        self._child.remove();
+        self._child.dom.remove();
         self._child = null;
       });
     }

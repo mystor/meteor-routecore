@@ -23,7 +23,6 @@ Package.on_use(function (api) {
   api.use('HTML5-History-API', 'client', {weak: true});
   api.use('webapp', 'server');
   api.use('fast-render', ['client', 'server']);
-  api.imply('fast-render', ['client', 'server']);
 
   api.add_files('react.js', ['client', 'server']);
 
@@ -32,8 +31,13 @@ Package.on_use(function (api) {
   api.add_files('context-server.js', 'server');
   api.add_files('routecore-client.js', 'client');
   api.add_files('routecore-server.js', 'server');
-  api.add_files('meteor-component.js', ['client', 'server'])
 
+  api.add_files('blaze-component.js', ['client', 'server'])
+
+  // fast-render needs to be visible to the app, as the
+  // inline javascript which fast-render pushes to the client
+  // needs to interact with an exported value.
+  api.imply('fast-render', ['client', 'server']);
   api.export('RouteCore', ['client', 'server']);
   // api.export('React'); -- unnecessary (react mutates global obj)
 });
