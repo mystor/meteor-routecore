@@ -95,7 +95,7 @@ function callOnContext(fn) {
       var context = Fiber.current._routeCoreContext;
       return context[fn].apply(context, arguments);
     } catch (err) {
-      throw "Can only call " + fn + " when in a RouteCore Fiber.";
+      throw new Error("Can only call " + fn + " when in a RouteCore Fiber.");
     }
   }
 }
