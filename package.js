@@ -32,6 +32,7 @@ Package.on_use(function (api) {
   api.add_files('context-server.js', 'server');
   api.add_files('routecore-client.js', 'client');
   api.add_files('routecore-server.js', 'server');
+  api.add_files('meteor-component.js', ['client', 'server'])
 
   api.export('RouteCore', ['client', 'server']);
   // api.export('React'); -- unnecessary (react mutates global obj)
