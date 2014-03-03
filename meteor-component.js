@@ -12,7 +12,7 @@
 //   createMeteorComponent will be passed as the context
 //   into the Meteor template/component which is passed in
 //
-function createMeteorComponent (component) {
+function BlazeComponent(component) {
   if (!UI)
     throw new Error('createMeteorComponent requires the rendering engine blaze, it is not compatible with spark');
 
@@ -75,5 +75,5 @@ function createMeteorComponent (component) {
   });
 };
 
-RouteCore.createMeteorComponent = createMeteorComponent;
+RouteCore.BlazeComponent = BlazeComponent;
 
