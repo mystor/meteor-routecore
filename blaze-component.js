@@ -9,12 +9,12 @@
 // 
 // Usage:
 //   Props passed to the component resturned by 
-//   createMeteorComponent will be passed as the context
+//   BlazeComponent will be passed as the context
 //   into the Meteor template/component which is passed in
 //
 function BlazeComponent(component) {
   if (!UI)
-    throw new Error('createMeteorComponent requires the rendering engine blaze, it is not compatible with spark');
+    throw new Error('BlazeComponent requires the rendering engine blaze, it is not compatible with spark');
 
   var component = component;
   if (Meteor.isClient && typeof component === 'string')
@@ -32,10 +32,10 @@ function BlazeComponent(component) {
     },
 
     componentDidMount: function() {
-      // Create the dependency system
-      // this._dep will be invalidated when props change
       var self = this;
       Deps.nonreactive(function() {
+        // Create the dependency system
+        // dep will be invalidated when props change
         var dep = new Deps.Dependency();
         var data = self.props;
 
