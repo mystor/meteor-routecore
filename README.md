@@ -10,6 +10,10 @@ With RouteCore, you share your rendering code across the client and the server, 
 mrt add routecore
 ```
 
+## Examples
+* TodoMVC ([link](http://todomvc-routecore.meteor.com/)) ([source](https://github.com/mystor/todomvc/tree/routecore/labs/architecture-examples/meteor-routecore))
+* Github Release Watch ([link](http://gh-release-watch.com)) ([source](https://github.com/mystor/gh-release-watch))
+
 ## Quick Start
 
 ```javascript
