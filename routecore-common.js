@@ -56,7 +56,7 @@ function route(path, handler) {
       // render the react component which was passed in
 
       return this.route(path, function(ctx) {
-        return handler(_.extend({}, ctx.params));
+        return handler(ctx.params);
       });
     } else {
       // We have received a raw callback!

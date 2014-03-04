@@ -29,22 +29,23 @@ function _wrap (cb) {
         }
 
         // Render the html
-        var html = React.renderComponentToString(component);
-        res.bodyHtml = html;
+        React.renderComponentToString(component, function(html) {
+          res.bodyHtml = html;
 
-        // Save the query data
-        // TODO: Make this merge with queryData potentially already in req
-        res.queryData = context._frContext.getData();
-        if (res.queryData)
-          res.queryData.serverRoutePath = req.url;
+          // Save the query data
+          // TODO: Make this merge with queryData potentially already in req
+          res.queryData = context._frContext.getData();
+          if (res.queryData)
+            res.queryData.serverRoutePath = req.url;
 
-        // The response was accessed during rendering, and used to
-        // send data directly to the client.  We are done.
-        if (res.finished)
-          return;
+          // The response was accessed during rendering, and used to
+          // send data directly to the client.  We are done.
+          if (res.finished)
+            return;
 
-        // Move on to the next middleware
-        next();
+          // Move on to the next middleware
+          next();
+        });
       } catch (err) {
         console.error('Error while rendering path: ' + req.url +' ; error: ' + err.stack);
         next();

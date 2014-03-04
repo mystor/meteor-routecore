@@ -24,15 +24,15 @@ Package.on_use(function (api) {
   api.use('webapp', 'server');
   api.use('fast-render', ['client', 'server']);
 
-  api.add_files('vendor/react-with-addons-0.9.0.js', ['client', 'server']);
+  api.add_files('react.js', ['client', 'server']);
 
-  api.add_files('core/routecore-common.js', ['client', 'server']);
-  api.add_files('core/context-client.js', 'client');
-  api.add_files('core/context-server.js', 'server');
-  api.add_files('core/routecore-client.js', 'client');
-  api.add_files('core/routecore-server.js', 'server');
+  api.add_files('routecore-common.js', ['client', 'server']);
+  api.add_files('context-client.js', 'client');
+  api.add_files('context-server.js', 'server');
+  api.add_files('routecore-client.js', 'client');
+  api.add_files('routecore-server.js', 'server');
 
-  api.add_files('addon/blaze-component.js', ['client', 'server'])
+  api.add_files('blaze-component.js', ['client', 'server'])
 
   // fast-render needs to be visible to the app, as the
   // inline javascript which fast-render pushes to the client
