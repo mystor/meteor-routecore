@@ -7,6 +7,8 @@ function stripSegment(s) {
 }
 
 function reverser(path) {
+  // Returns a function which reverses the path spec, returning a full URL
+
   var keys = path.match(segment) || [];
   keys = keys.map(stripSegment);
 
@@ -35,15 +37,16 @@ function reverser(path) {
   };
 }
 
-// Common method for adding a route
-// Delegates to the platform-specific _rawRoute once
-// it has transformed the handler into a function.
-//
-// Accepts:
-//  - React component spec
-//  - React component
-//  - Callback function
 function route(path, handler) {
+  // Common method for adding a route
+  // Delegates to the platform-specific _rawRoute once
+  // it has transformed the handler into a function.
+  //
+  // Accepts:
+  //  - React component spec
+  //  - React component
+  //  - Callback function
+
   if (typeof handler === 'object') {
     // We have received an object, we will use it
     // as a spec to create a react component
@@ -70,8 +73,18 @@ function route(path, handler) {
   }
 }
 
+function map(fn) {
+  // Binds the context to the RouteCore object.
+  // Means that the route() function can be called as
+  // `this.route()`
+
+  fn.apply(this);
+}
+
+// ~~~ EXPORTS ~~~
 RouteCore = {
   reverser: reverser,
-  route: route
+  route: route,
+  map: map
 };
 

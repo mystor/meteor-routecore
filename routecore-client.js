@@ -1,3 +1,7 @@
+// Create a singleton context instance.
+// This makes sense, as the entire environment is one page
+var context = new RouteCore._PageContext();
+
 function _wrap (cb) {
   var self = this;
 
@@ -14,7 +18,6 @@ function _wrap (cb) {
     // that any dependencies update. Thanks to React's lightweight
     // virtual DOM, we can get away with this.
     self._computation = Deps.autorun(function() {
-      var context = new Context();
       var component = cb.call(context, ctx);
 
       // We are done (redirect occured). We can just return now
@@ -38,16 +41,12 @@ function rawRoute(path, cb) {
   page(path, _wrap.call(this, cb));
 }
 
-function map (fn) {
-  fn.apply(this);
-}
-
 // Attach event listeners to the dom
 Meteor.startup(function() {
   page();
 });
 
-// Export the map function
-RouteCore.map = map;
+// ~~~ INTERNAL EXPORTS ~~~
 RouteCore._rawRoute = rawRoute;
+RouteCore._context = context;
 

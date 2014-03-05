@@ -1,18 +1,18 @@
-// Creates a component which allows for integration between
-// Meteor and React.
-//
-// NOTE: Requires the blaze rendering engine
-//
-// - component: The Meteor template/component to render
-//     if a string is passed, render that template, 
-//     otherwise, directly renders the component
-// 
-// Usage:
-//   Props passed to the component resturned by 
-//   BlazeComponent will be passed as the context
-//   into the Meteor template/component which is passed in
-//
 function BlazeComponent(component) {
+  // Creates a component which allows for integration between
+  // Meteor and React.
+  //
+  // NOTE: Requires the blaze rendering engine
+  //
+  // - component: The Meteor template/component to render
+  //     if a string is passed, render that template, 
+  //     otherwise, directly renders the component
+  // 
+  // Usage:
+  //   Props passed to the component resturned by 
+  //   BlazeComponent will be passed as the context
+  //   into the Meteor template/component which is passed in
+
   if (!UI)
     throw new Error('BlazeComponent requires the rendering engine blaze, it is not compatible with spark');
 
@@ -75,5 +75,6 @@ function BlazeComponent(component) {
   });
 };
 
+// ~~~ EXPORTS ~~~
 RouteCore.BlazeComponent = BlazeComponent;
 

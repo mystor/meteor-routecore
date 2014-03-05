@@ -1,51 +1,69 @@
-Context = (function() {
+var PageContext = (function() {
   // On the client, the context is just a set of aliases for other
   // Meteor functions.  It exists only so that we can use the exact
   // same code on the client and the server
-  function Context() {
+
+  function PageContext() {
     this.finished = false;
   }
 
-  Context.prototype.subscribe = function() {
+  PageContext.prototype.subscribe = function() {
     return Meteor.subscribe.apply(Meteor, arguments);
   }
 
-  Context.prototype.set = function() {
+  PageContext.prototype.set = function() {
     return Session.set.apply(Session, arguments);
   }
 
-  Context.prototype.equals = function() {
+  PageContext.prototype.equals = function() {
     return Session.equals.apply(Session, arguments);
   }
 
-  Context.prototype.get = function() {
+  PageContext.prototype.get = function() {
     return Session.get.apply(Session, arguments);
   }
 
-  Context.prototype.setDefault = function() {
+  PageContext.prototype.setDefault = function() {
     return Session.setDefault.apply(Session, arguments);
   }
 
-  Context.prototype.user = function() {
+  PageContext.prototype.user = function() {
     return Meteor.user();
   }
 
-  Context.prototype.userId = function() {
+  PageContext.prototype.userId = function() {
     return Meteor.userId();
   }
 
-  Context.prototype.loggingIn = function() {
+  PageContext.prototype.loggingIn = function() {
     return Meteor.loggingIn();
   }
 
-  Context.prototype.redirect = function(url) {
+  PageContext.prototype.redirect = function(url) {
     this.finished = true;
     page.show(url);
   }
 
-  return Context;
+  return PageContext;
 })();
 
-RouteCore._Context = Context;
-RouteCore.bindGlobals = function() {/* NO-OP on client */};
+function context() {
+  // Retrieves the singleton context instance.
+  // This is a function rather than a property, to make it
+  // consistet between the client and the server
+  return RouteCore._context;
+}
+
+function bindGlobals() {
+  // No-op when run on the client
+  // The globals which are bound are already avaliable on the client,
+  // and only need to be emulated on the server.
+}
+
+// ~~~ INTERNAL EXPORTS ~~~
+RouteCore._PageContext = PageContext;
+
+// ~~~ EXPORTS ~~~
+RouteCore.context = context;
+RouteCore.bindGlobals = bindGlobals;
 

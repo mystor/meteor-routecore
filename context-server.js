@@ -1,8 +1,8 @@
 var Fiber = Npm.require('fibers');
 
-Context = (function() {
+var PageContext = (function() {
 
-  function Context(loginToken, req, res) {
+  function PageContext(loginToken, req, res) {
     this._sessionData = {};
     this.request = req;
     this.response = res;
@@ -13,7 +13,7 @@ Context = (function() {
   // ready() and stop() method.  As we want to share code between
   // the client and the server, we need to make the subscribe function
   // return a object with these methods.
-  Context.prototype.subscribe = function() {
+  PageContext.prototype.subscribe = function() {
     this._frContext.subscribe.apply(this._frContext, arguments);
 
     return {
@@ -27,19 +27,19 @@ Context = (function() {
   // We don't send this data to the server (like fast-render), because
   // we assume that the route function is idempotent.  The session should
   // be identically recreated on the client.
-  Context.prototype.set = function(k, v) {
+  PageContext.prototype.set = function(k, v) {
     this._sessionData[k] = v;
   }
 
-  Context.prototype.equals = function(k, v) {
+  PageContext.prototype.equals = function(k, v) {
     return this._sessionData[k] === v;
   }
 
-  Context.prototype.get = function(k) {
+  PageContext.prototype.get = function(k) {
     return this._sessionData[k];
   }
 
-  Context.prototype.setDefault = function(k, v) {
+  PageContext.prototype.setDefault = function(k, v) {
     if (!this._sessionData[k])
       this._sessionData[k] = v;
   }
@@ -47,7 +47,7 @@ Context = (function() {
   // The FastRender context uses a userId field on the context to store
   // the id of the current user.  We can use this to emulate the Meteor.user()
   // reactive data source.
-  Context.prototype.user = function() {
+  PageContext.prototype.user = function() {
     return Meteor.users.findOne({_id: this.userId()}, {
       fields: {
         _id: 1,
@@ -58,11 +58,11 @@ Context = (function() {
     });
   }
 
-  Context.prototype.userId = function() {
+  PageContext.prototype.userId = function() {
     return this._frContext.userId;
   }
 
-  Context.prototype.loggingIn = function() {
+  PageContext.prototype.loggingIn = function() {
     return false;
   }
 
@@ -73,7 +73,7 @@ Context = (function() {
   // RouteCore.route('/place', function() {
   //   return this.redirect('/');
   // });
-  Context.prototype.redirect = function(url) {
+  PageContext.prototype.redirect = function(url) {
     var body = '<p>Temporarially Moved. Redirecting to <a href="' + url + '">' + url + '</a></p>';
     this.response.setHeader('Content-Type', 'text/html');
     this.response.statusCode = 307;
@@ -81,37 +81,33 @@ Context = (function() {
     this.response.end(body);
   }
 
-  return Context;
+  return PageContext;
 })();
 
-function callOnContext(fn) {
-  // Returns a function which is equivalent to calling the function
-  // fn on the current RouteCore context.  
-  //
-  // Throws an error if not in a RouteCore fiber
-
-  return function() {
-    try {
-      var context = Fiber.current._routeCoreContext;
-      return context[fn].apply(context, arguments);
-    } catch (err) {
-      throw "Can only call " + fn + " when in a RouteCore Fiber.";
-    }
+function context() {
+  // Retrieves the current page context. Should only be used within a RouteCore route
+  try {
+    return Fiber.current._routeCoreContext;
+  } catch (err) {
+    throw new Error("Page context is only avaliable when in a RouteCore Fiber");
   }
 }
 
 function bindGlobals() {
-  // Binds a set of global values on the server
-  //
-  // Binds the following:
-  // Meteor.subscribe()
-  // Meteor.user()
-  // Meteor.userId()
-  // Meteor.loggingIn()
-  // Session.get()
-  // Session.set()
-  // Session.equals()
-  // Session.setDefault()
+  // Binds some functions on the server to be equivalent to calling
+  // the function on the current page context.  This is done such that
+  // you can use the same code on the client and the server, written
+  // in the same style as generic Meteor code.
+
+  function callOnContext(fn) {
+    // Helper function - generates a function which is equivalent
+    // to calling fn on the current page context
+
+    return function() {
+      var ctx = context();
+      return ctx[fn].apply(ctx, arguments);
+    }
+  }
 
   global.Meteor = global.Meteor || {};
   global.Session = global.Session || {};
@@ -127,6 +123,10 @@ function bindGlobals() {
   global.Session.setDefault = callOnContext('setDefault');
 }
 
-RouteCore._Context = Context;
+// ~~~ INTERNAL EXPORTS ~~~
+RouteCore._PageContext = PageContext;
+
+// ~~~ EXPORTS ~~~
+RouteCore.context = context;
 RouteCore.bindGlobals = bindGlobals;
 

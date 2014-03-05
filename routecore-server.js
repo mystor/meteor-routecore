@@ -14,7 +14,7 @@ function _wrap (cb) {
     var loginToken = req.cookies['meteor_login_token'];
 
     Fiber(function() {
-      var context = new Context(loginToken, req, res);
+      var context = new RouteCore._PageContext(loginToken, req, res);
       Fiber.current._routeCoreContext = context;
 
       try {
@@ -82,10 +82,6 @@ function rawRoute(path, cb) {
   router.get(path, _wrap.call(this, cb));
 }
 
-function map (fn) {
-  fn.apply(this);
-}
-
 // Attach our middleware to the Meteor pipeline
 Meteor.startup(function() {
   setTimeout(function () {
@@ -95,6 +91,6 @@ Meteor.startup(function() {
   })
 });
 
-RouteCore.map = map;
+// ~~~ INTERNAL EXPORTS ~~~
 RouteCore._rawRoute = rawRoute;
 
