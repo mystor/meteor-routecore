@@ -1,11 +1,12 @@
 # RouteCore
+> RouteCore is a [Meteor](http://meteor.com) plugin which builds upon a series of other projects, including [page.js](http://visionmedia.github.io/page.js/), [connect-route](https://github.com/baryshev/connect-route), [fast-render](http://meteorhacks.com/fast-render/), and [react](http://facebook.github.io/react/). RouteCore extends Meteor, adding server-side rendering using the react library, and client/server routing.
 
-RouteCore is a [Meteor](http://meteor.com) plugin which builds upon a series of other projects, including [page.js](http://visionmedia.github.io/page.js/), [connect-route](https://github.com/baryshev/connect-route), [fast-render](http://meteorhacks.com/fast-render/), and [react](http://facebook.github.io/react/). RouteCore extends Meteor, adding server-side rendering using the react library, and client/server routing.
-
-With RouteCore, you share your rendering code across the client and the server, meaning that you can have fast page load times, and built in search engine capabilities.
+With RouteCore, you share your rendering code across the client and the server, meaning that you can have fast page load times, and your pages are avaliable to search engines for indexing.
 
 ## Installation
+RouteCore is on [atmosphere](https://atmosphere.meteor.com/package/routecore).
 
+You can install it using [meteorite](http://oortcloud.github.io/meteorite/).
 ```bash
 mrt add routecore
 ```
@@ -14,202 +15,162 @@ mrt add routecore
 * TodoMVC ([link](http://todomvc-routecore.meteor.com/)) ([source](https://github.com/mystor/todomvc/tree/routecore/labs/architecture-examples/meteor-routecore))
 * Github Release Watch ([link](http://gh-release-watch.com)) ([source](https://github.com/mystor/gh-release-watch))
 
-## Quick Start
+## The Page Context
+On the client, values such as the session are stored in the global scope, as the entire scope for the code is one user. However, on the server we cannot use the global scope. Multiple clients can be interacting with the same server, and they need to have distinct sessions, userIds, etc. during their page's server-side rendering.
 
+However, we want to enable people to use the same code that they would use on the client on the server, thus, we have the the Page Context.
+
+On the server, these global state values, such as `Session`, `Meteor.user`, etc. are stored within the Page Context. There is a unique page context for every request to the server. For API consistency, this context is also avaliable on the client, however it simply defers to built-in Meteor calls.
+
+In a function route, the page context is bound to `this`. If you are elsewhere in the route, you can get the page context by calling `RouteCore.context()`.
+
+> *NOTE* RouteCore does not send the session values which are generated on the server to the client. When the client renders code for the first time, it is expected that it will generate identical session values.
+
+> *NOTE* On the server, the current fiber is used to store the page context. If code creates a new fiber or runs code in a new fiber, it will not have access to the page context.
+
+### Methods
+The page context has the following methods:
+
+```javascript
+ctx.subscribe(args...) // Meteor.subscribe()
+ctx.user()             // Meteor.user()
+ctx.userId()           // Meteor.userId()
+ctx.loggingIn()        // Meteor.loggingIn()
+
+ctx.set(k, v)          // Session.set()
+ctx.get(k)             // Session.get()
+ctx.setDefault(k, v)   // Session.setDefault()
+ctx.equals(k1, k2)     // Session.equals()
+
+ctx.redirect()         // Redirect to a different URL
+```
+
+### Global Binding
+It is possible to get RouteCore to bind these context values to the global scope. As this could potentially have negative side-effects, it is not this way by default.  If you call `RouteCore.bindGlobals()`, RouteCore will define the following global functions on the server:
+
+```javascript
+Meteor.subscribe();
+Meteor.user();
+Meteor.userId();
+Meteor.loggingIn();
+
+Session.get(k);
+Session.set(k, v);
+Session.setDefault(k, v);
+Session.equals(k1, k2);
+```
+
+These functions only work on the server when in a RouteCore route, and will not work in other parts of Meteor code.
+
+> *NOTE* It is completely safe to call `RouteCore.bindGlobals()` on the client. It is currently a no-op.
+
+## Usage
+
+### JSX
+RouteCore contains the jsx transformer from `react-tools`, and will transform any .jsx files with it. The jsx transformer will not perform any transformations unless the comment `/** @jsx React.DOM */` is placed at the top of the file.
+
+### Defining Routes
+Routes are defined within a `RouteCore.map` block. To define a route, call `this.route`.
+
+`this.route` takes 2 arguments:
+1. A path spec. RouteCore uses page.js and connect-route for routing, and they use express-style path specs. (example: `/static/:required/:optional?`)
+
+2. One of the following:
+    1. A function: The return value of this function should be an initialized react component which will be rendered by React. This function will be passed one object (the request context - has `url` and `params` properties). The page context is bound to `this` within the function.
+    2. A React component: The params passed to the component will be the path segments from the URL.
+
+`this.route()` returns a function, which when called returns the path for the route.
+
+#### Example
 ```javascript
 /** @jsx React.DOM */
 
-Posts = new Meteor.Collection('posts');
+HomePage = React.createClass({ ... });
+FriendsPage = React.createClass({ ... });
 
-var HomePage = React.createClass({
-  render: function() {
+RouteCore.map(function() {
+  var home = this.route('/', HomePage);
+  var friends = this.route('/:user/friends', FriendsPage);
+
+  var user = this.route('/:user', function(ctx) {
     return (
       <div>
-        <h1>Hello {this.props.name}</h1>
-        <ul>
-          {this.props.posts.map(function(post) {
-            return (
-              <li key={post._id}>
-                <h2><a href={Routes.post(post._id)}>{post.title}</a></h2>
-                <p>{post.body}</p>
-              </li>
-            );
-          })}
-        </ul>
+        <a href={home()}>Home</a>
+        <br />
+        <a href={friends(ctx.params.user)}>See Friends</a>
       </div>
     );
-  }
-});
-
-var Post = React.createClass({
-  render: function() {
-    return (
-      <div>
-        <h1>{this.props.post.title}</h1>
-        <p>{this.props.post.body}</p>
-      </div>
-    )
-  }
-});
-
-var LoadingPage = React.createClass({
-  render: function() {
-    return <h1>Loading...</h1>
-  }
-});
-
-Routes = {};
-RouteCore.map(function() {
-  Routes.index = this.route('/', function() {
-    var name;
-    if (this.user())
-      name = this.user().username;
-    else
-      name = 'Anonymous';
-
-    if (this.subscribe('posts').ready())
-      return <HomePage name={name} posts={Posts.find().fetch()} />
-    else
-      return <LoadingPage />
-  });
-
-  Routes.post = this.route('/post/:id', function(ctx) {
-    var sub = this.subscribe('posts');
-
-    if (sub.ready()) {
-      return (
-        <div>
-          <a href={Routes.index()}>Back</a>
-          <Post post={Posts.findOne({_id: ctx.params.id})} />
-        </div>
-      );
-    } else
-      return <LoadingPage />
-  });
-});
-
-if (Meteor.isServer) {
-  Posts.remove({});
-  for (var i=0; i<10; i++) {
-    Posts.insert({
-      title: 'Post ' + i,
-      body: 'Post Body for post #' + i
-    });
-  }
-
-  Meteor.publish('posts', function() {
-    return Posts.find();
-  });
-}
-```
-
-## API
-
-All routing and react code should be run on both the client and the server.
-RouteCore will compile the route on the server, and push an already completed
-copy of the route to the client. In addition, with the help of Fast-Render,
-RouteCore will push down the subscriptions which you subscribe to, in their
-entirety.  Thus, your page will be ready to go immediately.
-
-### Creating Routes
-```javascript
-RouteCore.map(function() {
-  this.route('/path', function(ctx) {
-    return <h1>Hello World!</h1>
   });
 });
 ```
 
-### Variable Path Segments
-```javascript
-RouteCore.map(function() {
-  this.route('/pages/:page', function(ctx) {
-    return <h1>Welcome to page: {ctx.params.page}</h1>
-  });
-});
-```
-
-### Reversing URLs
-```javascript
-var Routes = {};
-RouteCore.map(function() {
-  Routes.index = this.route('/', function(ctx) {
-    return <a href={Routes.page('pageName')}>GO</a>
-  });
-
-  Routes.page = this.route('/pages/:page', function(ctx) {
-    return <h1>Welcome to page: {ctx.params.page}</h1>
-  });
-});
-```
+### Reactivity
+On the client, the page is rendered within a `Deps.autorun` block.  Thus, the page will re-render whenever any reactive data sources used by the block change. Thanks to React's virtual dom, this is very fast and usually will not touch the DOM.
 
 ### Redirecting
-```javascript
-var Routes = {};
-RouteCore.map(function() {
-  Routes.index = this.route('/', function(ctx) {
-    this.redirect(Routes.about());
-  });
+Sometimes, you want to redirect the user to a different page.  To do this simply call `redirect(target_url)` on the current page context.  If you do this on the server, it will respond to the client with a `307` status code.  On the client, page.js will be used to send the user to a different page.
 
-  Routes.about = this.route('/about', function(ctx) {
-    return <h1>About Page</h1>
+#### Example
+```javascript
+RouteCore.map(function() {
+  var home = this.route('/', HomePage);
+
+  this.route('/oldHome', function() {
+    this.redirect(home());
   });
 });
 ```
 
-### Subscriptions
+### Custom Server Side Responses
+Sometimes you want to respond with your own data on the server.  On the server, the page context has two properties: `request` and `response`.  These are the node HTTP request and response objects.  You can call functions on them to directly send data to the client.
+
+RouteCore will recognise if you call `response.end()`, and will not try to send any further data.
+
+#### Example
 ```javascript
 RouteCore.map(function() {
-  this.route('/', function(ctx) {
-    if (this.subscribe('posts').ready()) {
-      var posts = Posts.find().fetch();
-
-      return (
-        <div>
-          {posts.map(function(post) {
-            return <p>{post.title}</p>
-          })}
-        </div>
-      );
-    } else {
-      return <h1>Loading...</h1>
-    }
-  });
+  if (Meteor.isServer) {
+    this.route('/resource', function() {
+      this.response.setHeader('Content-Type', 'application/json');
+      this.response.end(JSON.stringify({
+        data: 'WOO'
+      }));
+    });
+  }
 });
 ```
 
-### Session
-```javascript
-RouteCore.map(function() {
-  this.route('/', function(ctx) {
-    this.setDefault('name', 'Jim');
-    return <h1>Hello {this.get('name')}</h1>
-  });
-});
+### Blaze Rendering Integration
+There are some really awesome components (such as `{{> loginButtons}}`) which have been made for Meteor's Blaze rendering engine, which are not compatible with React and server side rendering.
+
+RouteCore contains a simple component to allow you to use these components.
+
+Calling `RouteCore.BlazeComponent(component)` creates a React component which, on the client, will contain the blaze component.  A string can also be passed as the `component` argument.  If this is the case, the template with that name will be used.
+
+> *NOTE* The released version of Meteor still only bundles Spark, Meteor's old rendering engine. The integration does not support Spark, and requires at least `blaze-rc0`.  To upgrade your project to `blaze-rc0`, run `meteor update --release blaze-rc0`.
+
+#### Example
+template.html
+```handlebars
+<template name="integration">
+  <p>I got this value from react: {{value}}</p>
+
+  {{> loginButtons}}
+</template>
 ```
 
-### Users
+component.jsx
 ```javascript
-RouteCore.map(function() {
-  this.route('/', function(ctx) {
-    var name;
-    if (this.user())
-      name = this.user().username;
-    else
-      name = 'Anonymous';
+/** @jsx React.DOM */
 
-    return <h1>Welcome {name}</h1>
-  });
-});
+var Integration = RouteCore.BlazeComponent('integration');
+
+var OtherComponent = React.createClass({
+  render: function() {
+    return <Integration value='Sending data!' />
+  }
+}):
 ```
-
-## JSX
-
-Files with the extension `.jsx` will be compiled with `react-tools`. The examples above all use `.jsx` to make React easier to use.
-
-## Contributing
-
-If you have any ideas on how to improve the project, or any bug fixes or corrections to make, please fork and make a pull request. I am always open to new improvements.
 
 ## License
 
