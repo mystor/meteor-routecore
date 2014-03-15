@@ -105,7 +105,9 @@ RouteCore.map(function() {
 ```
 
 ### Reactivity
-On the client, the page is rendered within a `Deps.autorun` block.  Thus, the page will re-render whenever any reactive data sources used by the block change. Thanks to React's virtual dom, this is very fast and usually will not touch the DOM.
+On the client, the `render` method of a component is run within a reactive computation.  Whenever that computation is invalidated, the component will be re-rendered.
+
+This is done by wrapping React.createClass(), and react components made through another mechanism may not act reactively.
 
 ### Redirecting
 Sometimes, you want to redirect the user to a different page.  To do this simply call `redirect(target_url)` on the current page context.  If you do this on the server, it will respond to the client with a `307` status code.  On the client, page.js will be used to send the user to a different page.

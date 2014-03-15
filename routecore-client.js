@@ -29,10 +29,20 @@ function _wrap (cb) {
         window.location = ctx.url;
 
       // Render the component that was returned to the DOM
-      React.renderComponent(
-        component,
-        document.body
-      );
+      // We don't want this to be reactive, as React will sometimes
+      // re-render the DOM, calling these functions when not in
+      // a computation. 
+      // This can be confusing, as any reactive data sources which 
+      // are accessed will not cause a re-render.
+      //
+      // Instead, you should use the RouteCore.ReactiveMixin mixin,
+      // or create your React components with RouteCore.createClass()
+      Deps.nonreactive(function() {
+        React.renderComponent(
+          component,
+          document.body
+        );
+      });
     });
   }
 }
