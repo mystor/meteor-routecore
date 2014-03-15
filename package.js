@@ -33,7 +33,7 @@ Package.on_use(function (api) {
   api.add_files('routecore-server.js', 'server');
 
   api.add_files('blaze-component.js', ['client', 'server']);
-  api.add_files('mixin.js', ['client', 'server']);
+  api.add_files('reactivity.js', ['client', 'server']);
 
   // fast-render needs to be visible to the app, as the
   // inline javascript which fast-render pushes to the client

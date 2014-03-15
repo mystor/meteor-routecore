@@ -15,41 +15,49 @@ function _wrap (cb) {
 
     Fiber(function() {
       var context = new RouteCore._PageContext(loginToken, req, res);
-      Fiber.current._routeCoreContext = context;
+      DDP._CurrentInvocation.withValue({
+        userId: context.userId(),
+        context: context
+      }, function() {
+        try {
+          // Run the request
+          var component = cb.call(context, req);
 
-      try {
-        // Run the request
-        var component = cb.call(context, req);
-
-        // No component was returned, we don't bother rendering and
-        // instead let the rest of the system run its course
-        if (!component) {
-          next();
-          return;
-        }
-
-        // Render the html
-        React.renderComponentToString(component, function(html) {
-          res.bodyHtml = html;
-
-          // Save the query data
-          // TODO: Make this merge with queryData potentially already in req
-          res.queryData = context._frContext.getData();
-          if (res.queryData)
-            res.queryData.serverRoutePath = req.url;
-
-          // The response was accessed during rendering, and used to
-          // send data directly to the client.  We are done.
+          // The response was accessed during the callback
+          // Send data directly to the client.
           if (res.finished)
             return;
 
-          // Move on to the next middleware
+          // No component was returned, we don't bother rendering and
+          // instead let the rest of the system run its course
+          if (!component) {
+            next();
+            return;
+          }
+
+          // Render the html
+          React.renderComponentToString(component, function(html) {
+            res.bodyHtml = html;
+
+            // Save the query data
+            // TODO: Make this merge with queryData potentially already in req
+            res.queryData = context._frContext.getData();
+            if (res.queryData)
+              res.queryData.serverRoutePath = req.url;
+
+            // The response was accessed during rendering, and used to
+            // send data directly to the client.  We are done.
+            if (res.finished)
+              return;
+
+            // Move on to the next middleware
+            next();
+          });
+        } catch (err) {
+          console.error('Error while rendering path: ' + req.url +'\n' + err.stack);
           next();
-        });
-      } catch (err) {
-        console.error('Error while rendering path: ' + req.url +' ; error: ' + err.stack);
-        next();
-      }
+        }
+      });
     }).run();
   };
 }

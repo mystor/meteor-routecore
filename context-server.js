@@ -86,11 +86,11 @@ var PageContext = (function() {
 
 function context() {
   // Retrieves the current page context. Should only be used within a RouteCore route
-  try {
-    return Fiber.current._routeCoreContext;
-  } catch (err) {
+  var context = DDP._CurrentInvocation.get().context;
+  if (!context)
     throw new Error("Page context is only avaliable when in a RouteCore Fiber");
-  }
+
+  return context;
 }
 
 function bindGlobals() {
@@ -113,8 +113,6 @@ function bindGlobals() {
   global.Session = global.Session || {};
 
   global.Meteor.subscribe = callOnContext('subscribe');
-  global.Meteor.user = callOnContext('user');
-  global.Meteor.userId = callOnContext('userId');
   global.Meteor.loggingIn = callOnContext('loggingIn');
 
   global.Session.get = callOnContext('get');
