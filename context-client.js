@@ -40,7 +40,6 @@ var PageContext = (function() {
   }
 
   PageContext.prototype.redirect = function(url) {
-    this.finished = true;
     page.show(url);
   }
 

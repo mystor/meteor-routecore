@@ -12,7 +12,7 @@ function reverser(path) {
   var keys = path.match(segment) || [];
   keys = keys.map(stripSegment);
 
-  return function() {
+  var reverse = function() {
     var obj;
 
     if (typeof arguments[0] === 'object'
@@ -35,6 +35,12 @@ function reverser(path) {
       return obj[seg] ? '/' + obj[seg] : '';
     });
   };
+
+  reverse.go = function() {
+    RouteCore.go(this());
+  };
+
+  return reverse;
 }
 
 function route(path, handler) {
@@ -81,10 +87,20 @@ function map(fn) {
   fn.apply(this);
 }
 
+function go(url) {
+  // Programmatically redirects the user to the gievn url
+  // If the url is of the correct form, the redirect will be
+  // seamless.
+
+  var context = this.context();
+  context.redirect(url);
+}
+
 // ~~~ EXPORTS ~~~
 RouteCore = {
   reverser: reverser,
   route: route,
-  map: map
+  map: map,
+  go: go
 };
 
