@@ -109,6 +109,39 @@ On the client, the `render` method of a component is run within a reactive compu
 
 This is done by wrapping React.createClass(), and react components made through another mechanism may not act reactively.
 
+### Programmatically Changing Pages
+If you want to change the current page in response to a javascript event (such as a button press), you have a few options.  The function returned by `this.route()` has a method: `go`. Calling `go` and passing the same arguments that you would to the function returned by `this.route()` will redirect you to that page. 
+
+If you want to redirect to a specific URL, you can also call `RouteCore.go(url)`.
+
+#### Example
+```javascript
+/** @jsx React.DOM */
+
+ProjectPage = React.createClass({ ... }); 
+
+NewProjectButton = React.createClass({
+  newProject: function(e) {
+    var project = ...;
+
+    // Either of the following would work:
+    Routes.project.go(project);
+    // or
+    RouteCore.go(Routes.project(project));
+  },
+
+  render: function() {
+    return (<button onClick={this.newProject}>New Project!</button>);
+  }
+});
+
+Routes = {};
+
+RouteCore.map(function() {
+  Routes.project = this.route('/projects/:project', ProjectPage);
+});
+```
+
 ### Redirecting
 Sometimes, you want to redirect the user to a different page.  To do this simply call `redirect(target_url)` on the current page context.  If you do this on the server, it will respond to the client with a `307` status code.  On the client, page.js will be used to send the user to a different page.
 
