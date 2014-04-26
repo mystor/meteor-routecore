@@ -37,7 +37,7 @@ function reverser(path) {
   };
 
   reverse.go = function() {
-    RouteCore.go(this());
+    RouteCore.go(this.apply(this, arguments));
   };
 
   return reverse;
