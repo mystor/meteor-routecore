@@ -24,7 +24,7 @@ Package.on_use(function (api) {
   api.use('webapp', 'server');
   api.use('fast-render', ['client', 'server']);
 
-  api.add_files('react.js', ['client', 'server']);
+  api.add_files('react-with-addons.js', ['client', 'server']);
 
   api.add_files('routecore-common.js', ['client', 'server']);
   api.add_files('context-client.js', 'client');
