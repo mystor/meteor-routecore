@@ -5,20 +5,16 @@ function BlazeComponent(component) {
   // NOTE: Requires the blaze rendering engine
   //
   // - component: The Meteor template/component to render
-  //     if a string is passed, render that template, 
+  //     if a string is passed, render that template,
   //     otherwise, directly renders the component
-  // 
+  //
   // Usage:
-  //   Props passed to the component resturned by 
+  //   Props passed to the component resturned by
   //   BlazeComponent will be passed as the context
   //   into the Meteor template/component which is passed in
 
   if (!UI)
     throw new Error('BlazeComponent requires the rendering engine blaze, it is not compatible with spark');
-
-  var component = component;
-  if (Meteor.isClient && typeof component === 'string')
-    component = Template[component];
 
   return React.createClass({
     render: function() {
@@ -32,49 +28,22 @@ function BlazeComponent(component) {
     },
 
     componentDidMount: function() {
-      var self = this;
-      Deps.nonreactive(function() {
-        // Create the dependency system
-        // dep will be invalidated when props change
-        var dep = new Deps.Dependency();
-        var data = self.props;
-
-        self._dataFn = function() {
-          dep.depend();
-          return data;
-        };
-
-        self._dataFn.$set = function(v) {
-          dep.changed();
-          data = v;
-        };
-
-        // Insert Meteor's domrange into the span element
-        var parent = self.getDOMNode();
-        var bound = component.extend({data: self._dataFn});
-        self._child = UI.render(bound);
-
-        UI.DomRange.insert(self._child.dom, parent);
-      });
+      this._dynamicTmpl = new Iron.DynamicTemplate();
+      this._dynamicTmpl.template(component);
+      this._dynamicTmpl.data(this.props);
+      this._dynamicTmpl.insert({ el: this.getDOMNode() });
     },
 
     componentWillReceiveProps: function(newProps) {
-      var self = this;
-      Deps.nonreactive(function() {
-        self._dataFn.$set(newProps);
-      });
+      this._dynamicTmpl.data(newProps);
     },
 
     componentWillUnmount: function() {
-      var self = this;
-      Deps.nonreactive(function() {
-        self._child.dom.remove();
-        self._child = null;
-      });
+      this._dynamicTmpl.destroy();
+      this._dynamicTmpl = null;
     }
   });
 };
 
 // ~~~ EXPORTS ~~~
 RouteCore.BlazeComponent = BlazeComponent;
-
