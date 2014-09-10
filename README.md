@@ -4,9 +4,16 @@
 With RouteCore, you share your rendering code across the client and the server, meaning that you can have fast page load times, and your pages are avaliable to search engines for indexing.
 
 ## Installation
+
 RouteCore is on [atmosphere](https://atmosphere.meteor.com/package/routecore).
 
-You can install it using [meteorite](http://oortcloud.github.io/meteorite/).
+To install on Meteor 0.9 or later:
+
+```bash
+meteor add mystor:routecore
+```
+
+Previous versions of Meteor can install it using [meteorite](http://oortcloud.github.io/meteorite/).
 ```bash
 mrt add routecore
 ```
