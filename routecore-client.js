@@ -40,7 +40,7 @@ function _wrap (cb) {
       Deps.nonreactive(function() {
         React.renderComponent(
           component,
-          document.body
+          document.getElementById('-routecore-react-root')
         );
       });
     });

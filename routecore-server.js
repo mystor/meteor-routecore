@@ -75,7 +75,7 @@ http.OutgoingMessage.prototype.write = function(chunk, encoding) {
       console.warn('warn: server-render turned off due to CORS headers');
     } else {
       // Inject!
-      chunk = chunk.replace('<body>', '<body>\n' + this.bodyHtml + '\n');
+      chunk = chunk.replace('<body>', '<body>\n<span id="-routecore-react-root">\n' + this.bodyHtml + '\n</span>\n');
 
       this.htmlInjected = true;
     }

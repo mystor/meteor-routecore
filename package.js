@@ -1,7 +1,7 @@
 Package.describe({
   name: 'mystor:routecore',
   summary: 'client and server side rendering/routing powered by React',
-  version: '0.1.4',
+  version: '0.1.5',
   git: 'https://github.com/mystor/meteor-routecore.git'
 });
 
@@ -40,6 +40,8 @@ Package.on_use(function (api) {
 
   api.add_files('blaze-component.js', ['client', 'server']);
   api.add_files('reactivity.js', ['client', 'server']);
+
+  api.add_files('body.html', ['client']);
 
   // fast-render needs to be visible to the app, as the
   // inline javascript which fast-render pushes to the client
