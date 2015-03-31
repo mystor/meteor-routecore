@@ -80,6 +80,7 @@ RouteCore contains the jsx transformer from `react-tools`, and will transform an
 Routes are defined within a `RouteCore.map` block. To define a route, call `this.route`.
 
 `this.route` takes 2 arguments:
+
 1. A path spec. RouteCore uses page.js and connect-route for routing, and they use express-style path specs. (example: `/static/:required/:optional?`)
 
 2. One of the following:
