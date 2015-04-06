@@ -38,7 +38,7 @@ function _wrap (cb) {
       // Instead, you should use the RouteCore.ReactiveMixin mixin,
       // or create your React components with RouteCore.createClass()
       Deps.nonreactive(function() {
-        React.renderComponent(
+        React.render(
           component,
           document.getElementById('-routecore-react-root')
         );

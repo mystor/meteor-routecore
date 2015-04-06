@@ -36,7 +36,7 @@ function _wrap (cb) {
           }
 
           // Render the html
-          res.bodyHtml = React.renderComponentToString(component);
+          res.bodyHtml = React.renderToString(component);
 
           // Save the query data
           // TODO: Make this merge with queryData potentially already in req
