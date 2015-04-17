@@ -1,13 +1,14 @@
 Package.describe({
   name: 'mystor:routecore',
   summary: 'client and server side rendering/routing powered by React',
-  version: '0.1.5',
+  version: '0.2.0',
   git: 'https://github.com/mystor/meteor-routecore.git'
 });
 
 Npm.depends({
   'connect': '2.13.0',
-  'connect-route': '0.1.4'
+  'connect-route': '0.1.4',
+  'react': '0.13.1'
 });
 
 Package._transitional_registerBuildPlugin({
@@ -17,7 +18,7 @@ Package._transitional_registerBuildPlugin({
     'plugin/compile-jsx.js'
   ],
   npmDependencies: {
-    'react-tools': '0.11.1'
+    'react-tools': '0.13.1'
   }
 });
 
@@ -30,7 +31,7 @@ Package.on_use(function (api) {
   api.use('meteorhacks:fast-render@1.0.0', ['client', 'server']);
   api.use('iron:dynamic-template@0.3.0', 'client');
 
-  api.add_files('react-with-addons-0.11.1.js', ['client', 'server']);
+  api.add_files('react-with-addons-0.13.1.js', ['client', 'server']);
 
   api.add_files('routecore-common.js', ['client', 'server']);
   api.add_files('context-client.js', 'client');
